@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -9,11 +9,11 @@ import (
 )
 
 type DbWorker struct {
-	Dsn      string
-	Db       *sql.DB
-	Location location
+	Dsn string
+	Db  *sql.DB
 }
-type location struct {
+
+type Location struct {
 	Id         int
 	Radius     sql.NullFloat64
 	Direction  sql.NullInt64
@@ -22,10 +22,12 @@ type location struct {
 	createTime time.Time
 }
 
-func main() {
+var dbw DbWorker
+
+func Init() {
 	var err error
 	var timeLocation = url.QueryEscape("Asia/Shanghai")
-	dbw := DbWorker{
+	dbw = DbWorker{
 		Dsn: "root:devil@tcp(101.132.38.194:3306)/baiduMap?charset=utf8mb4&loc" + timeLocation + "&parseTime=true",
 	}
 	dbw.Db, err = sql.Open("mysql", dbw.Dsn)
@@ -34,8 +36,15 @@ func main() {
 		return
 	}
 	fmt.Println(dbw.Db)
-	defer dbw.Db.Close()
+}
 
+func Destory() {
+	fmt.Println("database close")
+	dbw.Db.Close()
+}
+
+func Demo() {
+	Init()
 	dbw.insertData(2, 2, 2, 2)
 	dbw.queryData()
 }
@@ -60,14 +69,11 @@ func (dbw *DbWorker) insertData(radius float64, direction int, latitude float64,
 	}
 }
 
-func (dbw *DbWorker) QueryDataPre() {
-	dbw.Location = location{}
-}
 func (dbw *DbWorker) queryData() {
 	stmt, _ := dbw.Db.Prepare(`SELECT * From location `)
 	defer stmt.Close()
 
-	dbw.QueryDataPre()
+	var location Location
 
 	rows, err := stmt.Query()
 	defer rows.Close()
@@ -76,17 +82,17 @@ func (dbw *DbWorker) queryData() {
 		return
 	}
 	for rows.Next() {
-		rows.Scan(&dbw.Location.Id, &dbw.Location.Radius, &dbw.Location.Direction, &dbw.Location.Latitude, &dbw.Location.Longitude, &dbw.Location.createTime)
+		rows.Scan(&location.Id, &location.Radius, &location.Direction, &location.Latitude, &location.Longitude, &location.createTime)
 		if err != nil {
 			fmt.Printf(err.Error())
 			continue
 		}
-		fmt.Println("get data, id: ", dbw.Location.Id,
-			" radius: ", float64(dbw.Location.Radius.Float64),
-			" direction: ", int(dbw.Location.Direction.Int64),
-			" latitude: ", float64(dbw.Location.Latitude.Float64),
-			" longitude: ", float64(dbw.Location.Longitude.Float64),
-			" createTime: ", dbw.Location.createTime.String())
+		fmt.Println("get data, id: ", location.Id,
+			" radius: ", float64(location.Radius.Float64),
+			" direction: ", int(location.Direction.Int64),
+			" latitude: ", float64(location.Latitude.Float64),
+			" longitude: ", float64(location.Longitude.Float64),
+			" createTime: ", location.createTime.String())
 	}
 
 	err = rows.Err()

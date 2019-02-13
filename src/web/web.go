@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World!")
 }
 
-func main() {
+func Demo() {
 	http.HandleFunc("/", sayhelloName)
 	err := http.ListenAndServe(":9090", nil)
 	if err != nil {
