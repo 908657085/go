@@ -65,7 +65,8 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 
 //查询最新位置信息
 func QueryCurrentLocation(w http.ResponseWriter, r *http.Request) {
-
+	locations, err := location.ListLocation(db.Dbw)
+	fmt.Println(locations, err)
 }
 
 //查询路线信息

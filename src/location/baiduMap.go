@@ -40,7 +40,7 @@ func InsertLocation(dbw db.DbWorker, radius float64, direction int, latitude flo
 	return LastInsertId, nil
 }
 
-func ListLocation(dbw db.DbWorker) {
+func ListLocation(dbw db.DbWorker) (locations []Location, err error) {
 	stmt, _ := dbw.Db.Prepare(`SELECT * From location ORDER BY create_time DESC limit 0,1`)
 	defer stmt.Close()
 
@@ -70,4 +70,5 @@ func ListLocation(dbw db.DbWorker) {
 	if err != nil {
 		fmt.Printf(err.Error())
 	}
+	return nil, nil
 }
