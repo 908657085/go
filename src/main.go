@@ -2,6 +2,7 @@ package main
 
 import (
 	"db"
+	"web"
 )
 
 func main() {
@@ -12,8 +13,7 @@ func main() {
 	//web.Demo()
 
 	//mysql demo
-	db.Demo()
-	//db.Init()
+	db.Init()
 	defer db.Destory()
-
+	web.Init()
 }
