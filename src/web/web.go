@@ -2,6 +2,7 @@ package web
 
 import (
 	"db"
+	"encoding/json"
 	"fmt"
 	"io"
 	"location"
@@ -30,6 +31,11 @@ func Demo() {
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "hello world! ")
+	fmt.Fprintf(w, "go index page!")
 }
 
 //上传位置信息
@@ -74,9 +80,52 @@ func ListLineMap(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "hello world! ")
-	fmt.Fprintf(w, "go index page!")
+func login(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var userName, password string
+	for k, v := range r.Form {
+		switch k {
+		case "userName":
+			userName = strings.Join(v, "")
+			break
+		case "password":
+			password = strings.Join(v, "")
+			break
+		}
+	}
+	if userName == "" || password == "" {
+		io.WriteString(w, "login fail!")
+		return
+	}
+	userInfo, err := db.Login(userName, password)
+	if nil != err {
+		fmt.Fprintf(w, "login fail! ", err)
+		return
+	}
+	result, _ := json.Marshal(userInfo)
+	fmt.Fprintf(w, string(result))
+}
+
+func registerUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var userName, password, nickName = r.FormValue("userName"), r.FormValue("password"), r.FormValue("nickName")
+	tel, err := strconv.ParseInt(r.FormValue("tel"), 10, 64)
+	if nil != err {
+		fmt.Println("register user tel error: ", err)
+		tel = 0
+	}
+	if userName == "" || password == "" {
+		fmt.Fprintf(w, "register user fail! username or password nil!")
+		fmt.Fprintf(w, " test123afa")
+		return
+	}
+	userinfo, err := db.InsertUserInfo(userName, password, nickName, tel)
+	if nil != err {
+		fmt.Fprintf(w, "register user error", err)
+		return
+	}
+	result, _ := json.Marshal(userinfo)
+	fmt.Fprintf(w, string(result))
 }
 
 func Init() {
@@ -84,6 +133,8 @@ func Init() {
 	http.HandleFunc("/uploadLocation", UploadLocation)
 	http.HandleFunc("/queryCurrentLocation", QueryCurrentLocation)
 	http.HandleFunc("/listLineMap", ListLineMap)
+	http.HandleFunc("/registerUser", registerUser)
+	http.HandleFunc("/login", login)
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {

@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"net/url"
@@ -32,4 +33,11 @@ func Init() {
 func Destory() {
 	fmt.Println("database close")
 	Dbw.Db.Close()
+}
+
+func (dbw *DbWorker) Check() error {
+	if nil == Dbw.Db {
+		return errors.New("db connection nil")
+	}
+	return nil
 }
