@@ -1,7 +1,8 @@
 package web
 
 import (
-	"db"
+	"LocationServer/db"
+	"LocationServer/upload"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,7 +10,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"upload"
 )
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {

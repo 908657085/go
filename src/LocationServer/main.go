@@ -1,8 +1,8 @@
-package main
+package LocationServer
 
 import (
-	"db"
-	"web"
+	"LocationServer/db"
+	"LocationServer/web"
 )
 
 func main() {
