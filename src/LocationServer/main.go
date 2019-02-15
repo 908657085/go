@@ -1,4 +1,4 @@
-package LocationServer
+package main
 
 import (
 	"LocationServer/db"
@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	//hello world go!
+	//hello world go!cd
 	//fmt.Println("hello, world!")
 
 	//web demo
