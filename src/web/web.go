@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"upload"
 )
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
@@ -47,16 +48,12 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 		switch k {
 		case "radius":
 			radius, _ = strconv.ParseFloat(strings.Join(v, ""), 32)
-			break
 		case "direction":
 			direction, _ = strconv.Atoi(strings.Join(v, ""))
-			break
 		case "latitude":
 			latitude, _ = strconv.ParseFloat(strings.Join(v, ""), 32)
-			break
 		case "longitude":
 			longitude, _ = strconv.ParseFloat(strings.Join(v, ""), 32)
-			break
 		}
 	}
 	if latitude != 0 && longitude != 0 {
@@ -92,10 +89,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 		switch k {
 		case "userName":
 			userName = strings.Join(v, "")
-			break
 		case "password":
 			password = strings.Join(v, "")
-			break
 		}
 	}
 	if userName == "" || password == "" {
@@ -141,7 +136,7 @@ func Init() {
 	http.HandleFunc("/listLineMap", ListLineMap)
 	http.HandleFunc("/registerUser", registerUser)
 	http.HandleFunc("/login", login)
-
+	http.HandleFunc("/upload", upload.UploadHandle)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("服务器启动失败")
