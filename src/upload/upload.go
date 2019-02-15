@@ -11,6 +11,17 @@ const (
 	upload_path string = "./upload_file/"
 )
 
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
 //上传
 func UploadHandle(w http.ResponseWriter, r *http.Request) {
 	//从请求当中判断方法
@@ -41,6 +52,15 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 		defer file.Close()
 		//创建文件
 		fmt.Println(head.Filename)
+		exists, err := PathExists(upload_path)
+		if err != nil {
+			fmt.Println("检测文件目录失败")
+			return
+		}
+		if !exists {
+			fmt.Println("upload_path not exists,mkdir")
+			os.Mkdir(upload_path, os.ModePerm)
+		}
 		fW, err := os.Create(upload_path + head.Filename)
 		if err != nil {
 			fmt.Println("文件创建失败")
@@ -52,7 +72,7 @@ func UploadHandle(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("文件保存失败")
 			return
 		}
-
+		fmt.Println("文件上传成功!")
 		io.WriteString(w, head.Filename+"params: "+params+"isEncrypted: "+isEncrypted+" timeStamp: "+timeStamp+" randomNum: "+randomNum+" sign : "+sign)
 	}
 }
