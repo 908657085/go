@@ -83,6 +83,11 @@ func ListLineMap(w http.ResponseWriter, r *http.Request) {
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var userName, password string
+	apiReuslt := ApiResult{
+		false,
+		"",
+		nil,
+	}
 	for k, v := range r.Form {
 		switch k {
 		case "userName":
@@ -102,7 +107,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "login fail! ", err)
 		return
 	}
-	result, _ := json.Marshal(userInfo)
+	apiReuslt.Data = userInfo
+	result, _ := json.Marshal(apiReuslt)
 	fmt.Fprintf(w, string(result))
 }
 
