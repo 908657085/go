@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"location"
 	"log"
 	"net/http"
 	"strconv"
@@ -57,7 +56,7 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if latitude != 0 && longitude != 0 {
-		id, err := location.InsertLocation(db.Dbw, radius, direction, latitude, longitude)
+		id, err := db.InsertLocation(db.Dbw, radius, direction, latitude, longitude)
 		if nil == err {
 			io.WriteString(w, "upload location success"+strconv.Itoa(int(id)))
 			return
@@ -68,7 +67,7 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 
 //查询最新位置信息
 func QueryCurrentLocation(w http.ResponseWriter, r *http.Request) {
-	locations, err := location.ListLocation(db.Dbw)
+	locations, err := db.ListLocation(db.Dbw)
 	fmt.Println(locations, err)
 }
 
