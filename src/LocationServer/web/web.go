@@ -67,8 +67,13 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 
 //查询最新位置信息
 func QueryCurrentLocation(w http.ResponseWriter, r *http.Request) {
-	locations, err := db.ListLocation(db.Dbw)
-	fmt.Println(locations, err)
+	locations, err := db.QueryCurrentLocation()
+	apiResult := DefaultApiResult()
+	if nil == err && nil != locations && len(locations) > 0 {
+		apiResult.Success = true
+		apiResult.Data = locations
+	}
+	printApiResult(w, apiResult)
 }
 
 //查询路线信息
@@ -79,7 +84,7 @@ func ListLineMap(w http.ResponseWriter, r *http.Request) {
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var userName, password string
-	apiReuslt := ApiResult{
+	apiResult := ApiResult{
 		false,
 		"",
 		nil,
@@ -101,8 +106,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "login fail! ", err)
 		return
 	}
-	apiReuslt.Data = userInfo
-	result, _ := json.Marshal(apiReuslt)
+	apiResult.Data = userInfo
+	result, _ := json.Marshal(apiResult)
+	fmt.Fprintf(w, string(result))
+}
+
+func printApiResult(w http.ResponseWriter, apiResult ApiResult) {
+	result, _ := json.Marshal(apiResult)
 	fmt.Fprintf(w, string(result))
 }
 

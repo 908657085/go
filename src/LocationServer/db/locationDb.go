@@ -16,6 +16,17 @@ type Location struct {
 	createTime time.Time
 }
 
+type UserLocation struct {
+	UserId    int
+	UserName  string
+	NickName  string
+	Tel       string
+	Radius    int
+	Direction int
+	Latitude  float64
+	Longitude float64
+}
+
 func InsertLocation(dbw DbWorker, radius float64, direction int, latitude float64, longitude float64) (lastInsertId int64, err error) {
 	stmt, err := dbw.Db.Prepare(`INSERT INTO location (radius, direction,latitude,longitude) VALUES (?,?,?,?)`)
 	defer stmt.Close()
@@ -38,6 +49,34 @@ func InsertLocation(dbw DbWorker, radius float64, direction int, latitude float6
 	//
 	//}
 	return LastInsertId, nil
+}
+
+func QueryCurrentLocation() (userLocations []UserLocation, err error) {
+	if e := Dbw.Check(); e != nil {
+		return nil, e
+	}
+	stmt, _ := Dbw.Db.Prepare(`select c.id,c.user_name,c.nick_name,c.tel,b.radius,b.direction,b.latitude,b.longitude from (select * from (select * from location order by create_time desc) a where (u_id is not null and create_time is not null) group by u_id order by u_id asc) b ,user_info c where b.u_id=c.id`)
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	defer rows.Close()
+	if err != nil {
+		fmt.Printf("query current location error: %v\n", err)
+		return nil, err
+	}
+
+	var userLocation UserLocation
+	var data []UserLocation
+
+	for rows.Next() {
+		err := rows.Scan(&userLocation.UserId, &userLocation.UserName, &userLocation.NickName, &userLocation.Tel, &userLocation.Radius, &userLocation.Direction, &userLocation.Latitude, &userLocation.Longitude)
+		if err != nil {
+			fmt.Printf(err.Error())
+			continue
+		}
+		data = append(data, userLocation)
+	}
+	return data, nil
 }
 
 func ListLocation(dbw DbWorker) (locations []Location, err error) {

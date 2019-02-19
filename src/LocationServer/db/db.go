@@ -30,7 +30,7 @@ func Init() {
 	fmt.Println("database open: ", Dbw.Db)
 }
 
-func Destory() {
+func Destroy() {
 	fmt.Println("database close")
 	Dbw.Db.Close()
 }

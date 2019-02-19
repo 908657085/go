@@ -14,6 +14,6 @@ func main() {
 
 	//mysql demo
 	db.Init()
-	defer db.Destory()
+	defer db.Destroy()
 	web.Init()
 }

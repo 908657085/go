@@ -5,3 +5,11 @@ type ApiResult struct {
 	Msg     string
 	Data    interface{}
 }
+
+func DefaultApiResult() ApiResult {
+	return ApiResult{
+		false,
+		"",
+		nil,
+	}
+}
