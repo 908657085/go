@@ -67,12 +67,14 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 
 //查询最新位置信息
 func QueryCurrentLocation(w http.ResponseWriter, r *http.Request) {
+	setDefaultHeader(w)
 	locations, err := db.QueryCurrentLocation()
 	apiResult := DefaultApiResult()
 	if nil == err && nil != locations && len(locations) > 0 {
 		apiResult.Success = true
 		apiResult.Data = locations
 	}
+
 	printApiResult(w, apiResult)
 }
 
@@ -82,6 +84,7 @@ func ListLineMap(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
+	setDefaultHeader(w)
 	r.ParseForm()
 	var userName, password string
 	apiResult := ApiResult{
@@ -112,11 +115,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func printApiResult(w http.ResponseWriter, apiResult ApiResult) {
+	setDefaultHeader(w)
 	result, _ := json.Marshal(apiResult)
 	fmt.Fprintf(w, string(result))
 }
 
 func registerUser(w http.ResponseWriter, r *http.Request) {
+	setDefaultHeader(w)
 	r.ParseForm()
 	var userName, password, nickName = r.FormValue("userName"), r.FormValue("password"), r.FormValue("nickName")
 	tel, err := strconv.ParseInt(r.FormValue("tel"), 10, 64)
@@ -136,6 +141,12 @@ func registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 	result, _ := json.Marshal(userinfo)
 	fmt.Fprintf(w, string(result))
+}
+
+func setDefaultHeader(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+	w.Header().Set("content-type", "application/json")             //返回数据格式是json
 }
 
 func Init() {
