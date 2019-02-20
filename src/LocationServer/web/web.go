@@ -54,14 +54,16 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 			userId, _ = strconv.Atoi(strings.Join(v, ""))
 		}
 	}
+	apiResult := DefaultApiResult()
 	if latitude != 0 && longitude != 0 {
 		id, err := db.InsertLocation(userId, radius, direction, latitude, longitude, addr)
 		if nil == err {
-			io.WriteString(w, "upload location success"+strconv.Itoa(int(id)))
-			return
+			apiResult.Success = true
+			apiResult.Data = id
+			printApiResult(w, apiResult)
 		}
 	}
-	io.WriteString(w, "upload location error")
+	printApiResult(w, apiResult)
 }
 
 //查询最新位置信息
