@@ -22,7 +22,7 @@ type UserLocation struct {
 	UserName  string
 	NickName  string
 	Tel       string
-	Radius    int
+	Radius    float64
 	Direction int
 	Latitude  float64
 	Longitude float64
