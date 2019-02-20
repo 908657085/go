@@ -14,14 +14,7 @@ import (
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Println(r.Form)
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
-	for k, v := range r.Form {
-		fmt.Println("key", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
+	printlnRequestParams(r)
 	fmt.Fprintf(w, "Hello World!")
 }
 
@@ -41,6 +34,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 //上传位置信息
 func UploadLocation(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	printlnRequestParams(r)
 	var radius, latitude, longitude float64
 	var userId, direction int
 	var addr string
@@ -152,6 +146,17 @@ func setDefaultHeader(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
 	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
 	w.Header().Set("content-type", "application/json")             //返回数据格式是json
+}
+
+func printlnRequestParams(r *http.Request) {
+	fmt.Println(r.Form)
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key", k)
+		fmt.Println("val:", strings.Join(v, ""))
+	}
 }
 
 func Init() {
