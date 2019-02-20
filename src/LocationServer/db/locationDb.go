@@ -33,7 +33,7 @@ func InsertLocation(userId int, radius float64, direction int, latitude float64,
 	if e := Dbw.Check(); e != nil {
 		return 0, e
 	}
-	stmt, err := Dbw.Db.Prepare(`INSERT INTO location (u_id,radius, direction,latitude,longitude,addr) VALUES (?,?,?,?,?)`)
+	stmt, err := Dbw.Db.Prepare(`INSERT INTO location (u_id,radius, direction,latitude,longitude,addr) VALUES (?,?,?,?,?,?)`)
 	defer stmt.Close()
 	if err != nil {
 		fmt.Println("insert location prepare error :", err)
