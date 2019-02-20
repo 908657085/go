@@ -13,6 +13,7 @@ type Location struct {
 	Direction  sql.NullInt64
 	Latitude   sql.NullFloat64
 	Longitude  sql.NullFloat64
+	Addr       sql.NullString
 	createTime time.Time
 }
 
@@ -25,16 +26,20 @@ type UserLocation struct {
 	Direction int
 	Latitude  float64
 	Longitude float64
+	Addr      string
 }
 
-func InsertLocation(dbw DbWorker, radius float64, direction int, latitude float64, longitude float64) (lastInsertId int64, err error) {
-	stmt, err := dbw.Db.Prepare(`INSERT INTO location (radius, direction,latitude,longitude) VALUES (?,?,?,?)`)
+func InsertLocation(userId int, radius float64, direction int, latitude float64, longitude float64, addr string) (lastInsertId int64, err error) {
+	if e := Dbw.Check(); e != nil {
+		return 0, e
+	}
+	stmt, err := Dbw.Db.Prepare(`INSERT INTO location (u_id,radius, direction,latitude,longitude,addr) VALUES (?,?,?,?,?)`)
 	defer stmt.Close()
 	if err != nil {
 		fmt.Println("insert location prepare error :", err)
 		return
 	}
-	ret, err := stmt.Exec(radius, direction, latitude, longitude)
+	ret, err := stmt.Exec(userId, radius, direction, latitude, longitude, addr)
 	if err != nil {
 		fmt.Printf("insert location error: %v\n", err)
 		return
@@ -55,7 +60,7 @@ func QueryCurrentLocation() (userLocations []UserLocation, err error) {
 	if e := Dbw.Check(); e != nil {
 		return nil, e
 	}
-	stmt, _ := Dbw.Db.Prepare(`select c.id,c.user_name,c.nick_name,c.tel,b.radius,b.direction,b.latitude,b.longitude from (select * from (select * from location order by create_time desc) a where (u_id is not null and create_time is not null) group by u_id order by u_id asc) b ,user_info c where b.u_id=c.id`)
+	stmt, _ := Dbw.Db.Prepare(`select c.id,c.user_name,c.nick_name,c.tel,b.radius,b.direction,b.latitude,b.longitude,b.addr from (select * from (select * from location order by create_time desc) a where (u_id is not null and create_time is not null) group by u_id order by u_id asc) b ,user_info c where b.u_id=c.id`)
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
@@ -69,7 +74,7 @@ func QueryCurrentLocation() (userLocations []UserLocation, err error) {
 	var data []UserLocation
 
 	for rows.Next() {
-		err := rows.Scan(&userLocation.UserId, &userLocation.UserName, &userLocation.NickName, &userLocation.Tel, &userLocation.Radius, &userLocation.Direction, &userLocation.Latitude, &userLocation.Longitude)
+		err := rows.Scan(&userLocation.UserId, &userLocation.UserName, &userLocation.NickName, &userLocation.Tel, &userLocation.Radius, &userLocation.Direction, &userLocation.Latitude, &userLocation.Longitude, &userLocation.Addr)
 		if err != nil {
 			fmt.Printf(err.Error())
 			continue

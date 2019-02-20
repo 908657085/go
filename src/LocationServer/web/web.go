@@ -42,7 +42,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 func UploadLocation(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var radius, latitude, longitude float64
-	var direction int
+	var userId, direction int
+	var addr string
 	for k, v := range r.Form {
 		switch k {
 		case "radius":
@@ -53,10 +54,14 @@ func UploadLocation(w http.ResponseWriter, r *http.Request) {
 			latitude, _ = strconv.ParseFloat(strings.Join(v, ""), 32)
 		case "longitude":
 			longitude, _ = strconv.ParseFloat(strings.Join(v, ""), 32)
+		case "addr":
+			addr = strings.Join(v, "")
+		case "userId":
+			userId, _ = strconv.Atoi(strings.Join(v, ""))
 		}
 	}
 	if latitude != 0 && longitude != 0 {
-		id, err := db.InsertLocation(db.Dbw, radius, direction, latitude, longitude)
+		id, err := db.InsertLocation(userId, radius, direction, latitude, longitude, addr)
 		if nil == err {
 			io.WriteString(w, "upload location success"+strconv.Itoa(int(id)))
 			return
