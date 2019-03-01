@@ -18,15 +18,16 @@ type Location struct {
 }
 
 type UserLocation struct {
-	UserId    int
-	UserName  string
-	NickName  string
-	Tel       string
-	Radius    float64
-	Direction int
-	Latitude  float64
-	Longitude float64
-	Addr      string
+	UserId     int
+	UserName   string
+	NickName   string
+	Tel        string
+	Radius     float64
+	Direction  int
+	Latitude   float64
+	Longitude  float64
+	Addr       string
+	CreateTime time.Time
 }
 
 func InsertLocation(userId int, radius float64, direction int, latitude float64, longitude float64, addr string) (lastInsertId int64, err error) {
@@ -60,7 +61,7 @@ func QueryCurrentLocation() (userLocations []UserLocation, err error) {
 	if e := Dbw.Check(); e != nil {
 		return nil, e
 	}
-	stmt, _ := Dbw.Db.Prepare(`select c.id,c.user_name,c.nick_name,c.tel,b.radius,b.direction,b.latitude,b.longitude,b.addr from (select * from (select * from location order by create_time desc) a where (u_id is not null and create_time is not null) group by u_id order by u_id asc) b ,user_info c where b.u_id=c.id`)
+	stmt, _ := Dbw.Db.Prepare(`select c.id,c.user_name,c.nick_name,c.tel,b.radius,b.direction,b.latitude,b.longitude,b.addr,b.create_time from (select * from (select * from location order by create_time desc) a where (u_id is not null and create_time is not null) group by u_id order by u_id asc) b ,user_info c where b.u_id=c.id`)
 	defer stmt.Close()
 
 	rows, err := stmt.Query()
@@ -74,12 +75,13 @@ func QueryCurrentLocation() (userLocations []UserLocation, err error) {
 	var data []UserLocation
 
 	for rows.Next() {
-		err := rows.Scan(&userLocation.UserId, &userLocation.UserName, &userLocation.NickName, &userLocation.Tel, &userLocation.Radius, &userLocation.Direction, &userLocation.Latitude, &userLocation.Longitude, &userLocation.Addr)
+		err := rows.Scan(&userLocation.UserId, &userLocation.UserName, &userLocation.NickName, &userLocation.Tel, &userLocation.Radius, &userLocation.Direction, &userLocation.Latitude, &userLocation.Longitude, &userLocation.Addr, &userLocation.CreateTime)
 		if err != nil {
 			fmt.Printf(err.Error())
 			continue
 		}
 		data = append(data, userLocation)
+		fmt.Println(userLocation.CreateTime)
 	}
 	return data, nil
 }
